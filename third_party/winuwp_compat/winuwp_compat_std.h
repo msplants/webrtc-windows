@@ -28,105 +28,106 @@
 #ifdef WINUWP
 
 #include <stddef.h>
+#include <sdkddkver.h>
 
 #ifdef __cplusplus
 namespace webrtc
 {
-  namespace TickTime
-  {
-  	inline void DisableFakeClock() {}
-  }
+	namespace TickTime
+	{
+		inline void DisableFakeClock() {}
+	}
 }
 #endif /* __cplusplus */
 
 #ifdef __cplusplus
-  extern "C" {
+extern "C" {
 #endif /* __cplusplus */
 
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-char *winuwpGetEnv(
-   const char *varname   
-);
+	/* ------------------------------------------------------------------------- */
+	/* ------------------------------------------------------------------------- */
+	/* ------------------------------------------------------------------------- */
+	/* ------------------------------------------------------------------------- */
+#if !defined(NTDDI_WIN10_RS4) || (WDK_NTDDI_VERSION < NTDDI_WIN10_RS4)
+	char *winuwpGetEnv(
+		const char *varname
+	);
 
-inline char *getenv(const char *varname)
-{
-	return winuwpGetEnv(varname);
-}
+	inline char *getenv(const char *varname)
+	{
+		return winuwpGetEnv(varname);
+	}
 
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
+	/* ------------------------------------------------------------------------- */
+	/* ------------------------------------------------------------------------- */
+	/* ------------------------------------------------------------------------- */
+	/* ------------------------------------------------------------------------- */
+	errno_t winuwpDupEnv(
+		char **buffer,
+		size_t *numberOfElements,
+		const char *varname
+	);
 
-errno_t winuwpDupEnv(
-   char **buffer,  
-   size_t *numberOfElements,  
-   const char *varname  
-);  
+	inline errno_t _dupenv_s(
+		char **buffer,
+		size_t *numberOfElements,
+		const char *varname
+	)
+	{
+		return winuwpDupEnv(buffer, numberOfElements, varname);
+	}
+	/* ------------------------------------------------------------------------- */
+	/* ------------------------------------------------------------------------- */
+	/* ------------------------------------------------------------------------- */
+	/* ------------------------------------------------------------------------- */
+	int winuwpPutEvnA(const char *envstring);
+	int winuwpPutEvnW(const wchar_t *envstring);
 
-inline errno_t _dupenv_s(  
-   char **buffer,  
-   size_t *numberOfElements,  
-   const char *varname  
-)
-{
-  return winuwpDupEnv(buffer, numberOfElements, varname);
-}
+	inline int _putenv(const char *envstring)
+	{
+		return winuwpPutEvnA(envstring);
+	}
 
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-int winuwpPutEvnA(const char *envstring);
-int winuwpPutEvnW(const wchar_t *envstring);
 
-inline int _putenv(const char *envstring)
-{
-  return winuwpPutEvnA(envstring);
-}
+	inline int _wputenv(const wchar_t *envstring)
+	{
+		return winuwpPutEvnW(envstring);
+	}
+#endif // !defined(NTDDI_WIN10_RS4) || (WDK_NTDDI_VERSION < NTDDI_WIN10_RS4)
+	/* ------------------------------------------------------------------------- */
+	/* ------------------------------------------------------------------------- */
+	/* ------------------------------------------------------------------------- */
+	/* ------------------------------------------------------------------------- */
+	char *winuwpGetCwd(char *buf, size_t size);
 
-inline int _wputenv(const wchar_t *envstring)
-{
-  return winuwpPutEvnW(envstring);
-}
+	inline char *getcwd(
+		char *buf,
+		size_t size
+	)
+	{
+		return winuwpGetCwd(buf, size);
+	}
 
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-char *winuwpGetCwd(char *buf, size_t size);
+	/* ------------------------------------------------------------------------- */
+	/* ------------------------------------------------------------------------- */
+	/* ------------------------------------------------------------------------- */
+	/* ------------------------------------------------------------------------- */
+	typedef int pid_t;
 
-inline char *getcwd(
-	char *buf,
-	size_t size
-)
-{
-	return winuwpGetCwd(buf, size);
-}
+	pid_t winuwpGetPid();
 
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-typedef int pid_t;
+	inline pid_t getpid(void)
+	{
+		return winuwpGetPid();
+	}
 
-pid_t winuwpGetPid();
-
-inline pid_t getpid(void)
-{
-  return winuwpGetPid();
-}
-
-inline int _getpid(void)
-{
-  return winuwpGetPid();
-}
+	inline int _getpid(void)
+	{
+		return winuwpGetPid();
+	}
 
 #ifdef __cplusplus
-  }
+}
 #endif /* __cplusplus */
 
 #endif /* WINUWP */
