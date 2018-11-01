@@ -147,7 +147,15 @@ namespace Org {
 			// Triggered when the SignalingState changed.
 			void GlobalObserver::OnSignalingChange(
 				webrtc::PeerConnectionInterface::SignalingState new_state) {
-				POST_PC_ACTION(OnSignalingStateChange);
+
+				auto pc = _pc;
+				Concurrency::create_task([pc] {
+					if (pc != nullptr) {
+						pc->OnSignalingStateChange();
+					}
+				});
+
+				// POST_PC_ACTION(OnSignalingStateChange);
 			}
 
 			// Triggered when SignalingState or IceState have changed.
@@ -159,14 +167,30 @@ namespace Org {
 			void GlobalObserver::OnAddStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> stream) {
 				auto evt = ref new Org::WebRtc::MediaStreamEvent();
 				evt->Stream = ref new Org::WebRtc::MediaStream(stream);
-				POST_PC_EVENT(OnAddStream, evt);
+
+				auto pc = _pc;
+				Concurrency::create_task([pc, evt] {
+					if (pc != nullptr) {
+						pc->OnAddStream(evt);
+					}
+				});
+
+				// POST_PC_EVENT(OnAddStream, evt);
 			}
 
 			// Triggered when a remote peer close a stream.
 			void GlobalObserver::OnRemoveStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> stream) {
 				auto evt = ref new Org::WebRtc::MediaStreamEvent();
 				evt->Stream = ref new Org::WebRtc::MediaStream(stream);
-				POST_PC_EVENT(OnRemoveStream, evt);
+
+				auto pc = _pc;
+				Concurrency::create_task([pc, evt] {
+					if (pc != nullptr) {
+						pc->OnRemoveStream(evt);
+					}
+				});
+
+				// POST_PC_EVENT(OnRemoveStream, evt);
 			}
 
 			// Triggered when a remote peer open a data channel.
@@ -176,12 +200,27 @@ namespace Org {
 				// This observer is deleted when the channel closes.
 				// See DataChannelObserver::OnStateChange().
 				data_channel->RegisterObserver(new DataChannelObserver(evt->Channel));
-				POST_PC_EVENT(OnDataChannel, evt);
+
+				auto pc = _pc;
+				Concurrency::create_task([pc, evt] {
+					if (pc != nullptr) {
+						pc->OnDataChannel(evt);
+					}
+				});
+
+				// POST_PC_EVENT(OnDataChannel, evt);
 			}
 
 			// Triggered when renegotiation is needed, for example the ICE has restarted.
 			void GlobalObserver::OnRenegotiationNeeded() {
-				POST_PC_ACTION(OnNegotiationNeeded);
+				auto pc = _pc;
+				Concurrency::create_task([pc] {
+					if (pc != nullptr) {
+						pc->OnNegotiationNeeded();
+					}
+				});
+
+				// POST_PC_ACTION(OnNegotiationNeeded);
 			}
 
 			// Called any time the IceConnectionState changes
@@ -208,7 +247,15 @@ namespace Org {
 				Org::WebRtc::RTCIceConnectionState cxNewState;
 				ToCx(new_state, &cxNewState);
 				evt->State = cxNewState;
-				POST_PC_EVENT(OnIceConnectionChange, evt);
+
+				auto pc = _pc;
+				Concurrency::create_task([pc, evt] {
+					if (pc != nullptr) {
+						pc->OnIceConnectionChange(evt);
+					}
+				});
+
+				// POST_PC_EVENT(OnIceConnectionChange, evt);
 			}
 
 			// Called any time the IceGatheringState changes
@@ -232,7 +279,15 @@ namespace Org {
 					ToCx(*candidate, &cxCandidate);
 					evt->Candidate = cxCandidate;
 				}
-				POST_PC_EVENT(OnIceCandidate, evt);
+
+				auto pc = _pc;
+				Concurrency::create_task([pc, evt] {
+					if (pc != nullptr) {
+						pc->OnIceCandidate(evt);
+					}
+				});
+
+				// POST_PC_EVENT(OnIceCandidate, evt);
 			}
 
 			// TODO(bemasc): Remove this once callers transition to OnIceGatheringChange.
@@ -240,7 +295,15 @@ namespace Org {
 			void GlobalObserver::OnIceComplete() {
 				auto evt = ref new Org::WebRtc::RTCPeerConnectionIceEvent();
 				evt->Candidate = nullptr;
-				POST_PC_EVENT(OnIceCandidate, evt);
+
+				auto pc = _pc;
+				Concurrency::create_task([pc, evt] {
+					if (pc != nullptr) {
+						pc->OnIceCandidate(evt);
+					}
+				});
+
+				// POST_PC_EVENT(OnIceCandidate, evt);
 			}
 
 			void GlobalObserver::OnConnectionHealthStats(
@@ -253,14 +316,30 @@ namespace Org {
 				evt->RTT = stats.rtt;
 				evt->LocalCandidateType = ToCx(stats.local_candidate_type);
 				evt->RemoteCandidateType = ToCx(stats.remote_candidate_type);
-				POST_PC_EVENT(OnConnectionHealthStats, evt);
+				
+				auto pc = _pc;
+				Concurrency::create_task([pc, evt] {
+					if (pc != nullptr) {
+						pc->OnConnectionHealthStats(evt);
+					}
+				});
+				
+				// POST_PC_EVENT(OnConnectionHealthStats, evt);
 			}
 
 			void GlobalObserver::OnRTCStatsReportsReady(
 				const Org::WebRtc::RTCStatsReports& rtcStatsReports) {
 				auto evt = ref new Org::WebRtc::RTCStatsReportsReadyEvent();
 				evt->rtcStatsReports = rtcStatsReports;
-				POST_PC_EVENT(OnRTCStatsReportsReady, evt);
+
+				auto pc = _pc;
+				Concurrency::create_task([pc, evt] {
+					if (pc != nullptr) {
+						pc->OnRTCStatsReportsReady(evt);
+					}
+				});
+
+				// POST_PC_EVENT(OnRTCStatsReportsReady, evt);
 			}
 
 			//============================================================================
