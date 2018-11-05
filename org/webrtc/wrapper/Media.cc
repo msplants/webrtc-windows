@@ -14,6 +14,7 @@
 #include <vector>
 #include <string>
 #include <set>
+#include "libyuv/convert_argb.h"
 #include "PeerConnectionInterface.h"
 #include "Marshalling.h"
 #include "webrtc/rtc_base/logging.h"
@@ -309,9 +310,20 @@ namespace Org {
 
 		void RawVideoSource::RawVideoFrame(uint32 width, uint32 height,
 			const Platform::Array<uint8>^ yPlane, uint32 yPitch,
+			const Platform::Array<uint8>^ uPlane, uint32 uPitch,
+			const Platform::Array<uint8>^ vPlane, uint32 vPitch) {
+			OnRawVideoFrame(width, height, yPlane, yPitch, uPlane, uPitch, vPlane, vPitch);
+		}
+		void RawVideoSource::ConvertYUVI420ToARGB(uint32 width, uint32 height,
+			const Platform::Array<uint8>^ yPlane, uint32 yPitch,
+			const Platform::Array<uint8>^ uPlane, uint32 uPitch,
 			const Platform::Array<uint8>^ vPlane, uint32 vPitch,
-			const Platform::Array<uint8>^ uPlane, uint32 uPitch) {
-			OnRawVideoFrame(width, height, yPlane, yPitch, vPlane, vPitch, uPlane, uPitch);
+			Platform::WriteOnlyArray<uint8>^ argbBuffer, uint32 argbPitch) {
+			libyuv::I420ToARGB(reinterpret_cast<uint8*>(yPlane->Data), yPitch,
+				reinterpret_cast<uint8*>(uPlane->Data), uPitch,
+				reinterpret_cast<uint8*>(vPlane->Data), vPitch,
+				argbBuffer->Data, argbPitch,
+				width, height);
 		}
 
 		RawVideoSource::~RawVideoSource() {

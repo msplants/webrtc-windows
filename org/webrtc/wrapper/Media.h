@@ -429,13 +429,18 @@ namespace Org {
 				RawVideoSource(MediaVideoTrack^ track);
 				void RawVideoFrame(uint32 width, uint32 height,
 					const Platform::Array<uint8>^ yPlane, uint32 yPitch,
-					const Platform::Array<uint8>^ vPlane, uint32 vPitch,
-					const Platform::Array<uint8>^ uPlane, uint32 uPitch);
+					const Platform::Array<uint8>^ uPlane, uint32 uPitch,
+					const Platform::Array<uint8>^ vPlane, uint32 vPitch);
 			public:
 				/// <summary>
 				/// Raw video frame has been received.
 				/// </summary>
 				event RawVideoSourceDelegate^ OnRawVideoFrame;
+				void ConvertYUVI420ToARGB(uint32 width, uint32 height,
+					const Platform::Array<uint8>^ yPlane, uint32 yPitch,
+					const Platform::Array<uint8>^ uPlane, uint32 uPitch,
+					const Platform::Array<uint8>^ vPlane, uint32 vPitch,
+					Platform::WriteOnlyArray<uint8>^ argbBuffer, uint32 argbPitch);
 				virtual ~RawVideoSource();
 			private:
 				std::unique_ptr<RawVideoStream> _videoStream;
