@@ -662,12 +662,15 @@ namespace Org {
 				rtc::InitializeSSL(globals::certificateVerifyCallBack);
 
 				globals::gNetworkThread = rtc::Thread::CreateWithSocketServer();
+				globals::gNetworkThread->SetName("NetworkThread", nullptr);
 				globals::gNetworkThread->Start();
 
 				globals::gWorkerThread = rtc::Thread::Create();
+				globals::gWorkerThread->SetName("WorkerThread", nullptr);
 				globals::gWorkerThread->Start();
 
 				globals::gSignalingThread = rtc::Thread::Create();
+				globals::gSignalingThread->SetName("SignalingThread", nullptr);
 				globals::gSignalingThread->Start();
 
 				auto encoderFactory = new webrtc::WinUWPH264EncoderFactory();
