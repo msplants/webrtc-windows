@@ -226,7 +226,13 @@ namespace Org {
 				// The callback is kept for the lifetime of the RTCPeerConnection.
 				_createSdpObservers.push_back(observer);
 
-				_impl->CreateOffer(observer, nullptr);
+				// For Sensei as a Service want to always receive audio and video from our peer regardless of 
+				// whether or not a stream is added locally.
+				webrtc::FakeConstraints constraints;
+				constraints.SetMandatoryReceiveAudio(true);
+				constraints.SetMandatoryReceiveVideo(true);
+
+				_impl->CreateOffer(observer, &constraints);
 			}, [](webrtc::SessionDescriptionInterface* sdi) {
 				RTCSessionDescription^ ret = nullptr;
 				ToCx(sdi, &ret);
