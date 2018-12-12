@@ -502,6 +502,15 @@ namespace Org {
 			IAsyncOperation<RTCSessionDescription^>^ CreateOffer();
 
 			/// <summary>
+			/// Generates a blob of SDP including filled out media attributes using 
+			/// FakeConstraints with SetMandatoryReceiveAudio and SetMandatoryReceiveVideo
+			/// to ensure this peer always receives independent of whether it send media
+			/// or not.
+			/// </summary>
+			/// <returns></returns>
+			IAsyncOperation<RTCSessionDescription^>^ CreateOfferToAlwaysReceiveMedia();
+
+			/// <summary>
 			/// Generates an SDP answer with the supported configuration for the
 			/// session that is compatible with the parameters in the remote
 			/// configuration. Like createOffer, the returned blob contains descriptions
