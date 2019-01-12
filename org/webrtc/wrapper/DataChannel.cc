@@ -62,6 +62,10 @@ namespace Org {
 			_impl->Close();
 		}
 
+		RTCDataChannel::~RTCDataChannel() {
+			LOG(LS_INFO) << "RTCDataChannel::~RTCDataChannel";
+		}
+
 		RTCDataChannelState RTCDataChannel::ReadyState::get() {
 			RTCDataChannelState state;
 			ToCx(_impl->state(), &state);

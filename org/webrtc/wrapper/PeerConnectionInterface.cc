@@ -143,10 +143,18 @@ namespace Org {
 
 		RTCPeerConnection::~RTCPeerConnection() {
 			LOG(LS_INFO) << "RTCPeerConnection::~RTCPeerConnection";
-			for (typename std::vector<DataChannelObserver*>::iterator it = _dataChannelObservers.begin();
-				it != _dataChannelObservers.end(); ++it) {
-				delete *it;
-			}
+
+			// If RTCPeerConnection::Close gets called before ~RTCPeerConnection, the code below
+			// causes an Access violation error because _impl->Close() closes the DataChannel which 
+			// leads to DataChannelObserver::OnStateChange.  DataChannelObserver::OnStateChange 
+			// calls delete this (this being DataChannelObserver) and so the code below causes a double
+			// deletion of the DataChannelObserver object.  RTCPeerConnection should probably track 
+			// whether or not it's been closed and if it hasn't been closed at the time of destruction
+			// Close could be called.
+			//for (typename std::vector<DataChannelObserver*>::iterator it = _dataChannelObservers.begin();
+			//	it != _dataChannelObservers.end(); ++it) {
+			//	delete *it;
+			//}
 		}
 
 		// Utility function to create an async operation

@@ -208,6 +208,7 @@ namespace Org {
 
 		private:
 			rtc::scoped_refptr<webrtc::DataChannelInterface> _impl;
+			~RTCDataChannel();
 		};
 
 		/// <summary>
